@@ -8,13 +8,21 @@
  * @returns {string}
  */
 function formatDate(date, fromFormat, toFormat) {
-  const separator = fromFormat[fromFormat.length - 1];
-  const dateParts = date.split(separator);
+  const fromSeparator = fromFormat.find(
+    (format) => !['YYYY', 'MM', 'DD', 'YY'].includes(format),
+  );
+  const toSeparator = toFormat.find(
+    (format) => !['YYYY', 'MM', 'DD', 'YY'].includes(format),
+  );
+
+  const dateParts = date.split(fromSeparator);
 
   const dateMap = {};
 
   fromFormat.forEach((part, index) => {
-    dateMap[part] = dateParts[index];
+    if (part !== fromSeparator) {
+      dateMap[part] = dateParts[index];
+    }
   });
 
   const resultParts = toFormat.map((format) => {
@@ -41,9 +49,13 @@ function formatDate(date, fromFormat, toFormat) {
     return dateMap[format];
   });
 
-  const formattedDate = resultParts.join(toFormat[toFormat.length - 1]);
+  let formattedDate = resultParts.join(toSeparator);
 
-  return formattedDate.replace(/([^\d\s])$/, '');
+  if (formattedDate.endsWith(toSeparator)) {
+    formattedDate = formattedDate.slice(0, -1);
+  }
+
+  return formattedDate;
 }
 
 module.exports = formatDate;
